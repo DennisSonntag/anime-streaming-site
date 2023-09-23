@@ -34,6 +34,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@macfja/svelte-persistent-store": "^2.4.0",
 		"@munirsafi/hls-dl": "^0.1.1",
 		"bits-ui": "^0.5.7",
 		"clsx": "^2.0.0",

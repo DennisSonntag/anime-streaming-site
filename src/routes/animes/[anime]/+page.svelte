@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { episodeStore, getVideoUrl, type VideoUrlType } from '$lib';
-	import Video from '$lib/video.svelte';
+	import Video from '$lib/components/video.svelte';
 	import { onMount } from 'svelte';
 
 	export let data;
