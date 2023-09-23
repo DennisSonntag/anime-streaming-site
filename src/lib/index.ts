@@ -1,15 +1,19 @@
+import { writable } from "svelte/store";
+
 type SourceType = {
 	isM3U8: boolean;
 	quality: string;
 	url: string;
 };
-type VideoUrlType = {
+export type VideoUrlType = {
 	download: string;
 	headers: {
 		Referer: string;
 	};
 	sources: SourceType[];
 };
+
+export const episodeStore = writable(1);
 
 export const getVideoUrl = async (
 	title: string,

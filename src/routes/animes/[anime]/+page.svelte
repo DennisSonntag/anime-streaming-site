@@ -1,25 +1,32 @@
 <script lang="ts">
-	import { getVideoUrl } from '$lib';
+	import { episodeStore, getVideoUrl, type VideoUrlType } from '$lib';
+	// import { getVideoUrl, type VideoUrlType } from '$lib';
 	import Video from '$lib/video.svelte';
 	import { onMount } from 'svelte';
 
+	// let  episodeStore = 0;
 	export let data;
 
-	let episodeStore = 1;
-
-	let videoUrl = '';
+	let videoUrl: VideoUrlType | null = data.videoUrl;
 
 	onMount(() => {
-		videoUrl = data.videoUrl.sources[0]?.url!;
+		videoUrl = data.videoUrl;
 	});
+
+	function changeVideoUrlEp(episode: number) {
+		return async () => {
+			videoUrl = null;
+			let videoUrlRes = await getVideoUrl(data.title, Number(episode), fetch);
+			videoUrl = videoUrlRes;
+		};
+	}
 
 	async function changeEp(e: MouseEvent) {
 		let target = e.target as HTMLButtonElement;
 		let episode = target.innerText;
-		episodeStore = Number(episode);
-		videoUrl = ""
-		let videoUrlRes = await getVideoUrl(data.title, Number(episode), fetch);
-		videoUrl = videoUrlRes.sources[0]?.url!;
+		$episodeStore = Number(episode);
+		let val =changeVideoUrlEp(Number(episode));
+		val()
 	}
 </script>
 
@@ -40,8 +47,8 @@
 					on:click={changeEp}
 					type="button"
 					class={`${
-						Number(ep.number) === episodeStore ? 'bg-blue-900' : 'bg-slate-700'
-					} h-full w-full rounded-lg p-2 text-center text-white`}
+						Number(ep.number) === $episodeStore ? 'bg-blue-900' : 'bg-slate-700'
+					} h-full w-full rounded-lg p-2 text-center text-white hover:bg-slate-600`}
 				>
 					{ep.number}
 				</button>
@@ -50,10 +57,10 @@
 	</div>
 	<div class="relative top-0 h-fit w-fit text-white">
 		{#key videoUrl}
-			<Video src={videoUrl} />
+			<Video src={videoUrl} changeEpFn={changeVideoUrlEp} />
 		{/key}
 
-		<h1>Episode: {data.episode}</h1>
+		<h1>Episode: {$episodeStore}</h1>
 
 		{#await data.other.details}
 			<h1>Details: ...</h1>

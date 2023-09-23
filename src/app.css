@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
 
 .video-container.paused .pause-icon {
 	display: none;
@@ -9,4 +8,83 @@
 
 .video-container:not(.paused) .play-icon {
 	display: none;
+}
+
+.video-controls::before {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent);
+	width: 100%;
+	left: 0;
+	aspect-ratio: 6 / 1;
+	z-index: -1;
+	pointer-events: none;
+}
+
+.video-container.full-screen .open {
+	display: none;
+}
+
+.video-container:not(.full-screen) .close {
+	display: none;
+}
+
+.volume-high-icon,
+.volume-low-icon,
+.volume-muted-icon {
+	display: none;
+}
+
+.video-container[data-volume-level='high'] .volume-high-icon {
+	display: block;
+}
+
+.video-container[data-volume-level='low'] .volume-low-icon {
+	display: block;
+}
+
+.video-container[data-volume-level='muted'] .volume-muted-icon {
+	display: block;
+}
+
+.timeline::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: calc(100% - var(--preview-position) * 100%);
+	display: none;
+	background-color: rgba(150, 150, 150);
+}
+
+.timeline::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: calc(100% - var(--progress-position) * 100%);
+	background-color: rgb(168 85 247);
+}
+
+.thumb-indicator {
+	--scale: 0;
+	left: calc(var(--progress-position) * 100%);
+	position: absolute;
+	transform: translateX(-50%) scale(var(--scale));
+	height: 200%;
+	top: -50%;
+	background-color: rgb(168 85 247);
+	border-radius: 50%;
+	transition: transform 75ms ease-in-out;
+	aspect-ratio: 1 / 1;
+}
+.timeline-container:hover .timeline::before {
+	display: block;
+}
+
+.timeline-container:hover .thumb-indicator {
+	--scale: 1;
 }
