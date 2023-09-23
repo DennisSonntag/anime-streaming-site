@@ -1,16 +1,15 @@
 <script lang="ts">
-	// import type { VideoUrlType } from '$lib/index';
 	export let src: VideoUrlType | null;
+	export let title: string;
 	export let changeEpFn: (episode: number) => () => Promise<void>;
 
 	import { episodeStore, type VideoUrlType } from '$lib';
 
-	// let qualities = [...src?.sources!].map((x) => x.quality);
-
-	// let quality = 'default';
-	// let videoUrl = [...src?.sources!].find((x) => x.quality === quality)?.url;
+	let qualities = [...(src?.sources || [])].map((x) => x.quality);
 	let videoUrl = src?.sources[0]?.url;
+	let quality = 'default';
 
+	console.log(videoUrl);
 	import Hls from 'hls.js';
 	import { onMount } from 'svelte';
 
@@ -206,6 +205,13 @@
 		let val = changeEpFn($episodeStore);
 		await val();
 	}
+
+
+	function setQuality(qual: string) {
+		quality = qual
+		videoUrl = src?.sources.find((x) => x.quality === qual)?.url;
+		qualitySelectPanel.classList.add('hidden');
+	}
 </script>
 
 <div
@@ -231,14 +237,14 @@
 		bind:this={qualitySelectPanel}
 		class="absolute bottom-[15%] right-0 z-50 flex hidden h-fit w-fit flex-col rounded-lg bg-gray-700 p-2 text-white"
 	>
-		<!-- {#each qualities as qual} -->
-		<!-- 	<button -->
-		<!-- 		on:click={() => setQuality(qual)} -->
-		<!-- 		type="button" -->
-		<!-- 		class={`hover:bg-slate-400  ${quality === qual ? 'bg-blue-500' : 'bg-gray-500'}`} -->
-		<!-- 		>{qual}</button -->
-		<!-- 	> -->
-		<!-- {/each} -->
+		{#each qualities as qual}
+			<button
+				on:click={() => setQuality(qual)}
+				type="button"
+				class={`hover:bg-slate-400  ${quality === qual ? 'bg-blue-500' : 'bg-gray-500'}`}
+				>{qual}</button
+			>
+		{/each}
 	</div>
 	<div
 		class="video-controls absolute bottom-0 left-0 right-0 z-[100] p-1 opacity-0 duration-[50ms] ease-in-out group-hover:opacity-100"
@@ -360,10 +366,24 @@
 					>
 				</button>
 			</div>
+
+			<a
+				download
+				href={ `/download?url=${videoUrl}&name=${title}-${$episodeStore}` }
+				class="ml-auto fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-8" viewBox="0 0 512 512"
+					><path
+						d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zm368 56a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+					/></svg
+				>
+			</a>
+			<!-- ------------------------------------------------------ -->
+
 			<button
 				on:click={toggleMiniPlayer}
 				type="button"
-				class="ml-auto fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
+				class="fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
 				><svg viewBox="0 0 24 24" class="h-8">
 					<path
 						fill="currentColor"

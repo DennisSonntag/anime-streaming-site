@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { episodeStore, getVideoUrl, type VideoUrlType } from '$lib';
-	// import { getVideoUrl, type VideoUrlType } from '$lib';
 	import Video from '$lib/video.svelte';
 	import { onMount } from 'svelte';
 
-	// let  episodeStore = 0;
 	export let data;
 
 	let videoUrl: VideoUrlType | null = data.videoUrl;
@@ -42,7 +40,8 @@
 		{#await data.other.details}
 			...
 		{:then dets}
-			{#each dets.episodes.slice(0, 100) as ep}
+			<!-- {#each dets.episodes.slice(0, 100) as ep} -->
+			{#each dets.episodes as ep}
 				<button
 					on:click={changeEp}
 					type="button"
@@ -57,7 +56,7 @@
 	</div>
 	<div class="relative top-0 h-fit w-fit text-white">
 		{#key videoUrl}
-			<Video src={videoUrl} changeEpFn={changeVideoUrlEp} />
+			<Video src={videoUrl} changeEpFn={changeVideoUrlEp} title={data.title} />
 		{/key}
 
 		<h1>Episode: {$episodeStore}</h1>
