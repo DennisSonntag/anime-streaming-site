@@ -68,6 +68,9 @@
 	right: calc(100% - var(--progress-position) * 100%);
 	background-color: rgb(168 85 247);
 }
+.buffering-indicator {
+	width: calc(var(--buffering-progress) * 100%);
+}
 
 .thumb-indicator {
 	--scale: 0;
@@ -88,3 +91,4 @@
 .timeline-container:hover .thumb-indicator {
 	--scale: 1;
 }
+

@@ -5,6 +5,6 @@ export const actions: Actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
 		const search = formData.get('search');
-		throw redirect(303, `/search/${search}`);
+		throw redirect(303, `/search/${search}?page=1`);
 	}
 };

@@ -30,9 +30,4 @@ export const GET: RequestHandler = async ({ request, params , url}) => {
 			'Content-Disposition': `attachment; filename=${name}.mp4`
 		}
 	});
-	// try {
-	// } catch (err) {
-	// 	console.error('Error during conversion:', err);
-	// 	return json({ error: 'Error during conversion' });
-	// }
-};
+}

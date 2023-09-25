@@ -3,45 +3,61 @@
 	import { onMount } from 'svelte';
 	import { episodeStore, type VideoUrlType, currentTimeStore } from '$lib';
 
-	import PlayIconSvg from '$lib/assets/PlayIcon.svelte';
-	import PauseIconSvg from '$lib/assets/PauseIcon.svelte';
-	import VolumeHighIcon from '$lib/assets/VolumeHighIcon.svelte';
-	import LowVolumeIcon from '$lib/assets/LowVolumeIcon.svelte';
-	import MuteVolumeIcon from '$lib/assets/MuteVolumeIcon.svelte';
-	import PrevEpIcon from '$lib/assets/PrevEpIcon.svelte';
-	import BackTenSecIcon from '$lib/assets/BackTenSecIcon.svelte';
-	import ForwardTenSecIcon from '$lib/assets/ForwardTenSecIcon.svelte';
-	import NextEpIcon from '$lib/assets/NextEpIcon.svelte';
-	import DownloadIcon from '$lib/assets/DownloadIcon.svelte';
-	import MiniPlayerIcon from '$lib/assets/MiniPlayerIcon.svelte';
-	import SettingsIcon from '$lib/assets/SettingsIcon.svelte';
-	import EnterFullscreenIcon from '$lib/assets/EnterFullscreenIcon.svelte';
-	import ExitFullscreenIcon from '$lib/assets/ExitFullscreenIcon.svelte';
+	import PlayIconSvg from '$lib/assets/svgs/PlayIcon.svelte';
+	import PauseIconSvg from '$lib/assets/svgs/PauseIcon.svelte';
+	import VolumeHighIcon from '$lib/assets/svgs/VolumeHighIcon.svelte';
+	import LowVolumeIcon from '$lib/assets/svgs/LowVolumeIcon.svelte';
+	import MuteVolumeIcon from '$lib/assets/svgs/MuteVolumeIcon.svelte';
+	import PrevEpIcon from '$lib/assets/svgs/PrevEpIcon.svelte';
+	import BackTenSecIcon from '$lib/assets/svgs/BackTenSecIcon.svelte';
+	import ForwardTenSecIcon from '$lib/assets/svgs/ForwardTenSecIcon.svelte';
+	import NextEpIcon from '$lib/assets/svgs/NextEpIcon.svelte';
+	import DownloadIcon from '$lib/assets/svgs/DownloadIcon.svelte';
+	import MiniPlayerIcon from '$lib/assets/svgs/MiniPlayerIcon.svelte';
+	import SettingsIcon from '$lib/assets/svgs/SettingsIcon.svelte';
+	import EnterFullscreenIcon from '$lib/assets/svgs/EnterFullscreenIcon.svelte';
+	import ExitFullscreenIcon from '$lib/assets/svgs/ExitFullscreenIcon.svelte';
+	import LoadingSpinner from './loadingSpinner.svelte';
 
 	export let src: VideoUrlType | null;
+	export let didChangeEpisode: boolean;
 	export let title: string;
-	export let changeEpFn: (episode: number) => () => Promise<void>;
+	export let changeEpisode: (episode: number) => void;
 
+	let backupCurrentTime = 0;
 	let qualities = [...(src?.sources || [])].map((x) => x.quality);
 	let videoUrl = src?.sources[0]?.url;
 	let quality = 'default';
+	let isHidden = true;
 
 	function changeVidUrl(video: HTMLVideoElement, params: any) {
 		if (params) {
+			backupCurrentTime = $currentTimeStore[`${title}-${$episodeStore}`] || 0;
+			isHidden = true;
 			if (Hls.isSupported()) {
 				let hls = new Hls();
 				hls.loadSource(params);
 				hls.attachMedia(video);
 			}
+			video.currentTime = backupCurrentTime;
+			didChangeEpisode && video.play();
+		} else {
+			isHidden = false;
 		}
 		return {
-			update(newParams: any) {
+			async update(newParams: any) {
 				if (newParams) {
+					backupCurrentTime = $currentTimeStore[`${title}-${$episodeStore}`] || 0;
+					isHidden = true;
 					if (Hls.isSupported()) {
 						let hls = new Hls();
 						hls.loadSource(newParams);
 						hls.attachMedia(video);
 					}
+					video.currentTime = backupCurrentTime;
+					didChangeEpisode && video.play();
+				} else {
+					isHidden = false;
 				}
 			}
 		};
@@ -54,41 +70,30 @@
 	let currentTimeElm: HTMLDivElement;
 	let timelineContiner: HTMLDivElement;
 	let qualitySelectPanel: HTMLDivElement;
+	let bufferingIndicator: HTMLDivElement;
 
+	function handleDocuemntKeydown(e: KeyboardEvent) {
+		const tagName = document.activeElement?.tagName.toLowerCase();
+		if (tagName === 'input') return;
+		switch (e.key.toLowerCase()) {
+			case ' ':
+				if (tagName === 'button') return;
+			case 'k':
+				togglePlay();
+				break;
+			case 'i':
+				toggleMiniPlayer();
+				break;
+			case 'f':
+				toggleFullscreen();
+				break;
+			case 'f':
+				toggleMute();
+				break;
+		}
+	}
 	onMount(() => {
 		video.currentTime = $currentTimeStore[`${title}-${$episodeStore}`] || 0;
-		document.addEventListener('keydown', (e) => {
-			const tagName = document.activeElement?.tagName.toLowerCase();
-			if (tagName === 'input') return;
-			switch (e.key.toLowerCase()) {
-				case ' ':
-					if (tagName === 'button') return;
-				case 'k':
-					togglePlay();
-					break;
-				case 'i':
-					toggleMiniPlayer();
-					break;
-				case 'f':
-					toggleFullscreen();
-					break;
-				case 'f':
-					toggleMute();
-					break;
-			}
-		});
-
-		document.addEventListener('fullscreenchange', () => {
-			videoContainer.classList.toggle('full-screen', document.fullscreenElement !== null);
-		});
-
-		document.addEventListener('mouseup', (e) => {
-			if (isScrubbing) toggleScrubbing(e);
-		});
-
-		document.addEventListener('mousemove', (e) => {
-			if (isScrubbing) handleTimelineUpdate(e);
-		});
 
 		video.addEventListener('enterpictureinpicture', () => {
 			videoContainer.classList.add('mini-player');
@@ -185,7 +190,6 @@
 		const percent = Math.min(Math.max(0, e.x - rect.x), rect.width) / rect.width;
 		timelineContiner.style.setProperty('--preview-position', String(percent));
 		if (isScrubbing) {
-			e.preventDefault();
 			video.currentTime = video.duration * percent;
 			timelineContiner.style.setProperty('--progress-position', String(percent));
 		}
@@ -204,8 +208,7 @@
 
 	async function nextEpisode() {
 		$episodeStore += 1;
-		let val = changeEpFn($episodeStore);
-		await val();
+		changeEpisode($episodeStore);
 	}
 
 	function forwardTenSeconds() {
@@ -218,8 +221,7 @@
 
 	async function prevEpisode() {
 		$episodeStore -= 1;
-		let val = changeEpFn($episodeStore);
-		await val();
+		changeEpisode($episodeStore);
 	}
 
 	function setQuality(qual: string) {
@@ -227,19 +229,40 @@
 		videoUrl = src?.sources.find((x) => x.quality === qual)?.url;
 		qualitySelectPanel.classList.add('hidden');
 	}
+
+	function handleProgress() {
+		const buffered = video.buffered;
+		if (buffered.length > 0) {
+			const start = buffered.start(0);
+			const end = buffered.end(buffered.length - 1);
+			const duration = end - start;
+			const percent = duration / video.duration;
+			bufferingIndicator.style.setProperty('--buffering-progress', String(percent));
+		}
+	}
 </script>
+
+<svelte:document
+	on:keydown={handleDocuemntKeydown}
+	on:fullscreenchange={() =>
+		videoContainer.classList.toggle('full-screen', document.fullscreenElement !== null)}
+	on:mouseup={(e) => isScrubbing && toggleScrubbing(e)}
+	on:mousemove={(e) => isScrubbing && handleTimelineUpdate(e)}
+/>
 
 <div
 	bind:this={videoContainer}
 	data-volume-level="high"
 	class="video-container theatre paused group relative mx-auto aspect-video w-[90%] bg-black"
 >
+	<LoadingSpinner {isHidden} />
 	<video
 		on:pause={() => videoContainer.classList.add('paused')}
 		on:play={() => videoContainer.classList.remove('paused')}
 		on:volumechange={onVolumeChange}
 		on:loadeddata={() => (totalTimeElm.textContent = formatDuration(video.duration))}
 		on:timeupdate={handleOnTimeUpdate}
+		on:progress={handleProgress}
 		on:click={togglePlay}
 		bind:this={video}
 		id="video"
@@ -267,10 +290,14 @@
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div
 			bind:this={timelineContiner}
-			on:mousemove={handleTimelineUpdate}
+			on:mousemove|preventDefault={handleTimelineUpdate}
 			on:mousedown={toggleScrubbing}
 			class="timeline-container group/timeline mx-1 flex h-[7px] cursor-pointer items-center"
 		>
+			<div
+				bind:this={bufferingIndicator}
+				class="buffering-indicator absolute h-[3px] bg-violet-300/50 duration-75 ease-in-out group-hover/timeline:h-[7px]"
+			></div>
 			<div
 				class="timeline relative h-[3px] w-full bg-gray-400/50 duration-75 ease-in-out group-hover/timeline:h-full"
 			>
@@ -347,6 +374,7 @@
 				download
 				href={`/download?url=${videoUrl}&name=${title}-${$episodeStore}`}
 				class="ml-auto fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
+				title="Download video"
 			>
 				<DownloadIcon />
 			</a>
@@ -356,6 +384,7 @@
 				on:click={toggleMiniPlayer}
 				type="button"
 				class="fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
+				title="Toggle miniplayer"
 			>
 				<MiniPlayerIcon />
 			</button>

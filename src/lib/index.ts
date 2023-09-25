@@ -1,10 +1,10 @@
-import { writable as persistedWritable } from "@macfja/svelte-persistent-store"
+import { writable as persistedWritable } from '@macfja/svelte-persistent-store';
+import { writable } from 'svelte/store';
 
 type CurrentTimeStoreType = Record<string, number>;
-export const currentTimeStore = persistedWritable<CurrentTimeStoreType>("time", {})
+export const currentTimeStore = persistedWritable<CurrentTimeStoreType>('time', {});
 
-
-export const episodeStore = persistedWritable("episode", 1);
+export const episodeStore = persistedWritable('episode', 1);
 
 type SourceType = {
 	isM3U8: boolean;
@@ -19,7 +19,6 @@ export type VideoUrlType = {
 	sources: SourceType[];
 };
 
-
 export const getVideoUrl = async (
 	title: string,
 	episode: number,
@@ -31,3 +30,5 @@ export const getVideoUrl = async (
 	);
 	return await videoUrlRaw.json();
 };
+
+export const loading = writable(false);

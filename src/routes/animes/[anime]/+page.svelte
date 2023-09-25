@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { episodeStore, getVideoUrl, type VideoUrlType } from '$lib';
+	import Tab from '$lib/components/Tab.svelte';
+	import Tabs from '$lib/components/Tabs.svelte';
 	import Video from '$lib/components/video.svelte';
 	import { onMount } from 'svelte';
 
@@ -7,25 +9,30 @@
 
 	let videoUrl: VideoUrlType | null = data.videoUrl;
 
+	let didChangeEpisode = false;
+
+		const isFiller = (epNum:number):boolean => {
+			return data.fillers.find(x => x.epNum === epNum)?.isFiller!
+		}
 	onMount(() => {
 		videoUrl = data.videoUrl;
+		didChangeEpisode = false;
 	});
 
-	function changeVideoUrlEp(episode: number) {
-		return async () => {
-			videoUrl = null;
-			let videoUrlRes = await getVideoUrl(data.title, Number(episode), fetch);
-			videoUrl = videoUrlRes;
-		};
+	async function changeEpisode(episode: number) {
+		videoUrl = null;
+		let videoUrlRes = await getVideoUrl(data.title, Number(episode), fetch);
+		videoUrl = videoUrlRes;
 	}
 
-	async function changeEp(e: MouseEvent) {
+	async function handleChangeEpisode(e: MouseEvent) {
+		didChangeEpisode = true;
 		let target = e.target as HTMLButtonElement;
 		let episode = target.innerText;
 		$episodeStore = Number(episode);
-		let val =changeVideoUrlEp(Number(episode));
-		val()
+		await changeEpisode(Number(episode));
 	}
+
 </script>
 
 <svelte:head>
@@ -40,14 +47,13 @@
 		{#await data.other.details}
 			...
 		{:then dets}
-			<!-- {#each dets.episodes.slice(0, 100) as ep} -->
 			{#each dets.episodes as ep}
+				
+
 				<button
-					on:click={changeEp}
+					on:click={handleChangeEpisode}
 					type="button"
-					class={`${
-						Number(ep.number) === $episodeStore ? 'bg-blue-900' : 'bg-slate-700'
-					} h-full w-full rounded-lg p-2 text-center text-white hover:bg-slate-600`}
+					class={`${ Number(ep.number) === $episodeStore ? 'bg-blue-900 hover:bg-blue-800' : isFiller(Number(ep.number)) ? 'bg-red-500 hover:bg-red-400' : "bg-slate-700 hover:bg-slate-600"} h-full w-full rounded-lg p-2 text-center text-white `}
 				>
 					{ep.number}
 				</button>
@@ -56,8 +62,16 @@
 	</div>
 	<div class="relative top-0 h-fit w-fit text-white">
 		{#key videoUrl}
-			<Video src={videoUrl} changeEpFn={changeVideoUrlEp} title={data.title} />
+			<Video {didChangeEpisode} src={videoUrl} {changeEpisode} title={data.title} />
 		{/key}
+
+		<div class="my-4">
+			<Tabs selectedTab="9anime">
+				<Tab title="9anime">9anime</Tab>
+				<Tab title="Gogoanime">Gogoanime</Tab>
+				<Tab title="crunclyroll">crunclyroll</Tab>
+			</Tabs>
+		</div>
 
 		<h1>Episode: {$episodeStore}</h1>
 

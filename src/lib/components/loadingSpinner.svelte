@@ -1,20 +1,29 @@
-<div class="square-circle-5"></div>
+<script lang="ts">
+	export let isHidden = false;
+	export let color = 'gray';
+	export let scale = '1';
+</script>
+
+<div style:--scale={scale} style:--color={color} class:hidden={isHidden}></div>
 
 <style>
-	.square-circle-5 {
+	div {
 		width: 65px;
+		scale: var(--scale);
 		aspect-ratio: 1;
-		position: relative;
+		inset: 0;
+		margin: auto;
+		position: absolute;
 	}
-	.square-circle-5:before,
-	.square-circle-5:after {
+	div:before,
+	div:after {
 		content: '';
 		position: absolute;
 		border-radius: 50px;
-		box-shadow: 0 0 0 3px inset #fff;
+		box-shadow: 0 0 0 3px inset var(--color);
 		animation: sc5 2.5s infinite;
 	}
-	.square-circle-5:after {
+	div:after {
 		animation-delay: -1.25s;
 		border-radius: 0;
 	}
