@@ -42,9 +42,7 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
 
 	const fillerRes = await fetch(`https://api.jikan.moe/v4/anime/${mal_id}/episodes`);
 	const fillerJson = await fillerRes.json();
-	console.log(fillerJson)
-	// console.log(fillerJson.data)
-	const fillers: { epNum: number; isFiller: boolean }[] = fillerJson.data.map((ep) => ({
+	const fillers: { epNum: number; isFiller: boolean }[] = fillerJson.data?.map((ep) => ({
 		epNum: ep.mal_id,
 		isFiller: ep.filler
 	}));
@@ -55,8 +53,6 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
 		title,
 		search,
 		fillers,
-		other: {
-			details: getDetails()
-		}
+		details: getDetails()
 	};
 };
