@@ -1,3 +1,4 @@
+import { PUBLIC_BACKEND_URL } from '$env/static/public';
 import { writable as persistedWritable } from '@macfja/svelte-persistent-store';
 import { writable } from 'svelte/store';
 
@@ -26,7 +27,8 @@ export const getVideoUrl = async (
 ): Promise<VideoUrlType> => {
 	const episodeString = `${title}-episode-${episode}`;
 	const videoUrlRaw = await fetchFn(
-		`http://localhost:3000/anime/gogoanime/watch/${episodeString}?server=vidstreaming`
+		// `http://localhost:3000/anime/gogoanime/watch/${episodeString}?server=vidstreaming`
+		`${PUBLIC_BACKEND_URL}/anime/gogoanime/watch/${episodeString}?server=vidstreaming`
 	);
 	return await videoUrlRaw.json();
 };

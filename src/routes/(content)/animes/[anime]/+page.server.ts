@@ -1,3 +1,4 @@
+import { PUBLIC_BACKEND_URL } from '$env/static/public';
 import { getVideoUrl } from '$lib';
 import type { PageServerLoad } from '../$types';
 
@@ -27,7 +28,8 @@ export const load: PageServerLoad = async ({ fetch, params, url }) => {
 	const search = url.searchParams.get('s');
 	const title = params.anime;
 	const getDetails = async (): Promise<Details> => {
-		const detailsRaw = await fetch(`http://localhost:3000/anime/gogoanime/info/${title}`);
+		// const detailsRaw = await fetch(`http://localhost:3000/anime/gogoanime/info/${title}`);
+		const detailsRaw = await fetch(`${PUBLIC_BACKEND_URL}/anime/gogoanime/info/${title}`);
 		return await detailsRaw.json();
 	};
 
