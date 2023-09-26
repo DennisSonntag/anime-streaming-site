@@ -25,10 +25,13 @@
 		videoUrl = videoUrlRes;
 	}
 
-	async function handleChangeEpisode(e: MouseEvent) {
+	async function handleChangeEpisode(
+		e: MouseEvent & {
+			currentTarget: EventTarget & HTMLButtonElement;
+		}
+	) {
 		didChangeEpisode = true;
-		let target = e.target as HTMLButtonElement;
-		let episode = target.innerText;
+		let episode = e.currentTarget.innerText;
 		$episodeStore = Number(episode);
 		await changeEpisode(Number(episode));
 	}
@@ -48,11 +51,11 @@
 				type="button"
 				class={`${
 					Number(ep.number) === $episodeStore
-						? 'bg-blue-900 hover:bg-blue-800'
+						? 'bg-accent hover:bg-accent'
 						: isFiller(Number(ep.number))
 						? 'bg-red-500 hover:bg-red-400'
-						: 'bg-slate-700 hover:bg-slate-600'
-				} h-full w-full rounded-lg p-2 text-center text-white `}
+						: 'bg-secondary hover:bg-secondary'
+				} text-text h-full w-full rounded-lg p-2 text-center `}
 			>
 				{ep.number}
 			</button>
@@ -63,17 +66,20 @@
 			<Video {didChangeEpisode} src={videoUrl} {changeEpisode} title={data.title} />
 		{/key}
 
-		<div class="my-4">
-			<Tabs selectedTab="9anime">
-				<Tab title="9anime">9anime</Tab>
-				<Tab title="Gogoanime">Gogoanime</Tab>
-				<Tab title="crunclyroll">crunclyroll</Tab>
-			</Tabs>
+		<!-- <div class="my-4"> -->
+		<!-- 	<Tabs selectedTab="9anime"> -->
+		<!-- 		<Tab title="9anime">9anime</Tab> -->
+		<!-- 		<Tab title="Gogoanime">Gogoanime</Tab> -->
+		<!-- 		<Tab title="crunclyroll">crunclyroll</Tab> -->
+		<!-- 	</Tabs> -->
+		<!-- </div> -->
+
+		<div class="bg-primary m-2 w-[95%] rounded-lg p-2">
+			<h1 class="text-center font-heading font-bold text-xl">Episode: {$episodeStore}</h1>
+			<p  class="text-center font-heading font-bold text-xl">Anime: {data.details.title}</p>
+			<hr />
+
+			<p>Details: {data.details.description}</p>
 		</div>
-
-		<h1>Episode: {$episodeStore}</h1>
-
-		<h1>Details: {data.details.description}</h1>
-		<h1>Details: {data.details.title}</h1>
 	</div>
 </div>

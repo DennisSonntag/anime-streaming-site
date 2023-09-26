@@ -43,7 +43,7 @@
 <div class="flex gap-2">
 	{#each titles as { title }}
 		<button
-			class={`text-white w-fit h-fit p-2 rounded-lg bg-slate-800 font-bold hover:bg-slate-700 ${$selectedTabStore === title && "bg-violet-900"}`}
+			class={`text-text w-fit h-fit p-2 rounded-lg bg-primary font-bold hover:bg-secondary ${$selectedTabStore === title && "bg-accent"}`}
 			type="button"
 			on:click={() => $selectedTabStore = title }>{title}</button
 		>

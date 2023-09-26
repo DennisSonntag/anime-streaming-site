@@ -2,8 +2,7 @@
 	import '../app.css';
 
 	import { navigating } from '$app/stores';
-		import { fade } from 'svelte/transition';
-
+	import { fade } from 'svelte/transition';
 
 	import { loading } from '$lib/index';
 	import LoadingSpinner from '$lib/components/loadingSpinner.svelte';
@@ -14,8 +13,10 @@
 <main>
 	<slot />
 	{#if $loading}
-		<div transition:fade={{ duration: 300 }} class="fixed inset-0 h-full w-full bg-black/75">
+		<div transition:fade={{ duration: 300 }} class="fixed inset-0 h-full w-full bg-black/75 cursor-wait">
 			<LoadingSpinner color="white" scale="2" />
 		</div>
 	{/if}
 </main>
+
+

@@ -95,13 +95,13 @@
 	onMount(() => {
 		video.currentTime = $currentTimeStore[`${title}-${$episodeStore}`] || 0;
 
-		video.addEventListener('enterpictureinpicture', () => {
-			videoContainer.classList.add('mini-player');
-		});
+		video.addEventListener('enterpictureinpicture', () =>
+			videoContainer.classList.add('mini-player')
+		);
 
-		video.addEventListener('leavepictureinpicture', () => {
-			videoContainer.classList.remove('mini-player');
-		});
+		video.addEventListener('leavepictureinpicture', () =>
+			videoContainer.classList.remove('mini-player')
+		);
 	});
 	function onVolumeChange() {
 		volumneSlider.value = String(video.volume);
@@ -118,9 +118,7 @@
 		videoContainer.dataset['volumeLevel'] = volumeLevel;
 	}
 	function togglePlay() {
-		if (video) {
-			video.paused ? video.play() : video.pause();
-		}
+		video && video.paused ? video.play() : video.pause();
 	}
 
 	function toggleFullscreen() {
@@ -202,21 +200,9 @@
 		timelineContiner.style.setProperty('--progress-position', String(percent));
 	}
 
-	function toggleQualitySelect() {
-		qualitySelectPanel.classList.toggle('hidden');
-	}
-
 	async function nextEpisode() {
 		$episodeStore += 1;
 		changeEpisode($episodeStore);
-	}
-
-	function forwardTenSeconds() {
-		video.currentTime += 10;
-	}
-
-	function backTenSeconds() {
-		video.currentTime -= 10;
 	}
 
 	async function prevEpisode() {
@@ -349,14 +335,14 @@
 				</button>
 				<button
 					type="button"
-					on:click={backTenSeconds}
+					on:click={() => (video.currentTime -= 10)}
 					class="fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
 				>
 					<BackTenSecIcon />
 				</button>
 				<button
 					type="button"
-					on:click={forwardTenSeconds}
+					on:click={() => (video.currentTime += 10)}
 					class="fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
 				>
 					<ForwardTenSecIcon />
@@ -398,7 +384,7 @@
 			</button>
 			<button
 				type="button"
-				on:click={toggleQualitySelect}
+				on:click={() => qualitySelectPanel.classList.toggle('hidden')}
 				class="fill-white opacity-50 duration-75 ease-in-out hover:opacity-100"
 			>
 				<SettingsIcon />
